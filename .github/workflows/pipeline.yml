@@ -32,6 +32,7 @@ jobs:
           wait-on: http://localhost:5000
       - name: deploy
         if: ${{ github.event_name == 'push' }}
+        if: ${{ contains(join($COMMIT_MESSAGES, ','), '#skip') == false }}
         uses: akhileshns/heroku-deploy@v3.11.10
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -43,7 +44,9 @@ jobs:
           rollbackonhealthcheckfailed: true
       - name: Bump version and push tag
         if: ${{ github.event_name == 'push'}}
+        if: ${{ contains(join($COMMIT_MESSAGES, ','), '#skip') == false }}
         uses: anothrNick/github-tag-action@1.33.0
         env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
