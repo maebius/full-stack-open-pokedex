@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - test_ci
   pull_request:
     branches: [master]
     types: [opened, synchronize]
@@ -45,21 +44,6 @@ jobs:
           command: npm run test:e2e
           start: npm run start-prod
           wait-on: http://localhost:5000
-      
-      - name: Notify Slack tests success
-        uses: 8398a7/action-slack@v3.9.0
-        with:
-          status: ${{ job.status }}
-          custom_payload: |
-            {
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `a new version deployed to ${process.env.AS_REPO} (commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: ${{ success() }}
 
       - name: deploy
         if: ${{ github.event_name == 'push' &&
@@ -79,12 +63,13 @@ jobs:
       - name: Notify Slack deploy success
         uses: 8398a7/action-slack@v3.9.0
         with:
-          status: ${{ job.status }}
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
           custom_payload: |
             {
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `a new version deployed to ${process.env.AS_REPO} (commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
+                text: `a new version deployed to ${process.env.AS_REPO} (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
               }]
             }
         env:
