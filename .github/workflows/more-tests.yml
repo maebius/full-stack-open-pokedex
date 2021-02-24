@@ -3,13 +3,13 @@ name: More tests on test_ci
 on:
   push:
     branches:
-      - test_ci
+      - test
   
 jobs:
   more_tests_pipeline:
     runs-on: ubuntu-18.04
     steps:
-      - name: Notify Slack tests success
+      - name: Notify Slack test
         uses: 8398a7/action-slack@v3.9.0
         with:
           status: custom
@@ -18,7 +18,7 @@ jobs:
             {
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `a new version deployed to ${process.env.AS_REPO} (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
+                text: `a test slack msg to ${process.env.AS_REPO} (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
               }]
             }
         env:
