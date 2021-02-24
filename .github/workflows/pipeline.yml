@@ -32,13 +32,6 @@ jobs:
         with:
           status: ${{ job.status }}
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
-          custom_payload: |
-            {
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `build failed, commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
-              }]
-            }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: ${{ failure() }}
@@ -53,6 +46,21 @@ jobs:
           start: npm run start-prod
           wait-on: http://localhost:5000
       
+      - name: Notify Slack tests success
+        uses: 8398a7/action-slack@v3.9.0
+        with:
+          status: ${{ job.status }}
+          custom_payload: |
+            {
+              attachments: [{
+                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
+                text: `a new version deployed to ${process.env.AS_REPO} (commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+        if: ${{ success() }}
+
       - name: deploy
         if: ${{ github.event_name == 'push' &&
           contains(join(env.COMMIT_MESSAGES, ','), '#skip') == false }}
@@ -72,12 +80,11 @@ jobs:
         uses: 8398a7/action-slack@v3.9.0
         with:
           status: ${{ job.status }}
-          fields: repo,message,author
           custom_payload: |
             {
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `a new version deployed, commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
+                text: `a new version deployed to ${process.env.AS_REPO} (commit (${process.env.AS_COMMIT}) by ${process.env.AS_AUTHOR}, took ${process.env.AS_TOOK}`,
               }]
             }
         env:
