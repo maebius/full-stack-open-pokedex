@@ -2,7 +2,13 @@
 
 This repository is used for the CI/CD module of the Full stack open course
 
-Fork the repository to complete course exercises
+# Other assigment
+
+The repository for the other assigment where you convert one of your
+previous projects to follow CI/CD conventions is following:
+
+https://github.com/maebius/mooc_fullstackopen_osa11_phonebook
+
 
 ## Commands
 
